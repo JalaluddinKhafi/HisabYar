@@ -11,5 +11,9 @@ public class MoneyTest {
             try { Money.parse(text); fail(text); } catch (IllegalArgumentException expected) {}
         }
     }
+    @Test public void localDigitsAreAccepted() {
+        assertEquals(Money.parse("123.45"), Money.parse("۱۲۳٫۴۵"));
+        assertEquals(Money.parse("123.45"), Money.parse("١٢٣٫٤٥"));
+    }
     @Test public void formatKeepsCents() { assertEquals("1,234.50", Money.format(Money.parse("1234.5"))); }
 }
