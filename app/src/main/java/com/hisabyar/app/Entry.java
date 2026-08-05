@@ -15,6 +15,17 @@ public final class Entry {
         if (this.category.isEmpty()) throw new IllegalArgumentException("دسته‌بندی الزامی است.");
         this.date=date;
     }
+    public org.json.JSONObject toJson() throws org.json.JSONException {
+        org.json.JSONObject o=new org.json.JSONObject();
+        o.put("id",id); o.put("type",type); o.put("amount",amount.toPlainString());
+        o.put("currency",currency); o.put("category",category); o.put("source",source);
+        o.put("note",note); o.put("date",date); return o;
+    }
+    public static Entry fromJson(org.json.JSONObject o) throws org.json.JSONException {
+        return new Entry(o.get("id").toString(), o.getString("type"), o.get("amount").toString(),
+            o.getString("currency"), o.getString("category"), o.optString("source",""),
+            o.optString("note",""), o.getString("date"));
+    }
     private static String text(String text, int limit) {
         String value=text == null ? "" : text.trim();
         if (value.length()>limit) throw new IllegalArgumentException("متن بیش از حد طولانی است.");
