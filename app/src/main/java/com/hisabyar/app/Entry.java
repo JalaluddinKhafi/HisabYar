@@ -13,7 +13,7 @@ public final class Entry {
         this.id=id; this.type=type; this.amount=Money.parse(amount); this.currency=currency;
         this.category=text(category, 80); this.source=text(source, 200); this.note=text(note, 1000);
         if (this.category.isEmpty()) throw new IllegalArgumentException("دسته‌بندی الزامی است.");
-        this.date=date;
+        this.date=Dates.validate(date);
     }
     public org.json.JSONObject toJson() throws org.json.JSONException {
         org.json.JSONObject o=new org.json.JSONObject();
