@@ -15,6 +15,21 @@ public final class LedgerStore {
         try { entries=BackupCodec.decode(raw()); readOnly=false; }
         catch(Exception error) { readOnly=true; throw error; }
     }
+    public void upsert(Entry entry) throws Exception {
+        List<Entry> candidate=new ArrayList<>(entries); boolean found=false;
+        for(int i=0;i<candidate.size();i++) if(candidate.get(i).id.equals(entry.id)) {
+            candidate.set(i,entry); found=true; break;
+        }
+        if(!found) candidate.add(entry);
+        replace(candidate);
+    }
+    public Entry remove(String id) throws Exception {
+        List<Entry> candidate=new ArrayList<>(entries);
+        for(int i=0;i<candidate.size();i++) if(candidate.get(i).id.equals(id)) {
+            Entry removed=candidate.remove(i); replace(candidate); return removed;
+        }
+        throw new IllegalArgumentException("ثبت پیدا نشد.");
+    }
     public void replace(List<Entry> candidate) throws Exception {
         if(readOnly) throw new java.io.IOException("اطلاعات موجود خوانده نشد؛ ابتدا نسخهٔ خام را ذخیره و مشکل را بررسی کنید.");
         String json=BackupCodec.encode(candidate);
