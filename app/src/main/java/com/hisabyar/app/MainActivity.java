@@ -27,7 +27,7 @@ public class MainActivity extends Activity {
         if(problem!=null) message(problem);
     }
     private void build() {
-        root=new LinearLayout(this); root.setOrientation(LinearLayout.VERTICAL); root.setPadding(18,18,18,18);
+        root=new LinearLayout(this); root.setOrientation(LinearLayout.VERTICAL); root.setPadding(dp(16),dp(16),dp(16),dp(16));
         TextView title=label(getString(R.string.app_name),28); title.setGravity(Gravity.CENTER); root.addView(title);
         root.addView(label(getString(R.string.tagline),14));
         summary=label("",16); root.addView(summary);
@@ -42,10 +42,11 @@ public class MainActivity extends Activity {
         button("گزارش امروز و این ماه",()->showReport());
         root.addView(label("ثبت‌ها",20));
         body=new LinearLayout(this); body.setOrientation(LinearLayout.VERTICAL); root.addView(body);
-        setContentView(root);
+        ScrollView scroll=new ScrollView(this); scroll.setFillViewport(true); scroll.addView(root); setContentView(scroll);
     }
+    private int dp(int value) { return Math.round(value*getResources().getDisplayMetrics().density); }
     private TextView label(String text,int size) {
-        TextView view=new TextView(this); view.setText(text); view.setTextSize(size); view.setPadding(8,8,8,8); return view;
+        TextView view=new TextView(this); view.setText(text); view.setTextSize(size); view.setPadding(dp(8),dp(8),dp(8),dp(8)); return view;
     }
     private EditText edit(String hint) { EditText view=new EditText(this); view.setHint(hint); return view; }
     private Spinner spinner(String[] values) {
