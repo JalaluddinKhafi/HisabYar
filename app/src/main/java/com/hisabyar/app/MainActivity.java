@@ -27,13 +27,13 @@ public class MainActivity extends Activity {
         if(problem!=null) message(problem);
     }
     private void build() {
-        root=new LinearLayout(this); root.setOrientation(LinearLayout.VERTICAL); root.setPadding(dp(16),dp(16),dp(16),dp(16));
+        root=new LinearLayout(this); root.setOrientation(LinearLayout.VERTICAL); root.setLayoutDirection(View.LAYOUT_DIRECTION_RTL); root.setPadding(dp(16),dp(16),dp(16),dp(16));
         TextView title=label(getString(R.string.app_name),28); title.setGravity(Gravity.CENTER); root.addView(title);
         root.addView(label(getString(R.string.tagline),14));
         summary=label("",16); root.addView(summary);
         root.addView(label("ثبت درآمد یا مصرف",20));
         type=spinner(new String[]{"مصرف","درآمد"}); root.addView(type);
-        amount=edit("مبلغ"); amount.setInputType(InputType.TYPE_CLASS_NUMBER|InputType.TYPE_NUMBER_FLAG_DECIMAL); root.addView(amount);
+        amount=edit("مبلغ"); amount.setTextDirection(View.TEXT_DIRECTION_LTR); amount.setInputType(InputType.TYPE_CLASS_NUMBER|InputType.TYPE_NUMBER_FLAG_DECIMAL); root.addView(amount);
         currency=spinner(new String[]{"افغانی (AFN)","دالر (USD)"}); root.addView(currency);
         category=spinner(CATEGORIES); root.addView(category);
         source=edit("منبع درآمد / فروشگاه (اختیاری)"); root.addView(source);
