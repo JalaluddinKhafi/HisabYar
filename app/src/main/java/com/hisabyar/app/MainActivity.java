@@ -28,8 +28,8 @@ public class MainActivity extends Activity {
     }
     private void build() {
         root=new LinearLayout(this); root.setOrientation(LinearLayout.VERTICAL); root.setPadding(18,18,18,18);
-        TextView title=label("حساب‌یار",28); title.setGravity(Gravity.CENTER); root.addView(title);
-        root.addView(label("دفتر درآمد و مصارف شخصی • آفلاین",14));
+        TextView title=label(getString(R.string.app_name),28); title.setGravity(Gravity.CENTER); root.addView(title);
+        root.addView(label(getString(R.string.tagline),14));
         summary=label("",16); root.addView(summary);
         root.addView(label("ثبت درآمد یا مصرف",20));
         type=spinner(new String[]{"مصرف","درآمد"}); root.addView(type);
@@ -38,7 +38,7 @@ public class MainActivity extends Activity {
         category=spinner(CATEGORIES); root.addView(category);
         source=edit("منبع درآمد / فروشگاه (اختیاری)"); root.addView(source);
         note=edit("توضیح (اختیاری)"); root.addView(note);
-        button("ثبت اطلاعات",()->addEntry());
+        button(getString(R.string.save_entry),()->addEntry());
         button("گزارش امروز و این ماه",()->showReport());
         root.addView(label("ثبت‌ها",20));
         body=new LinearLayout(this); body.setOrientation(LinearLayout.VERTICAL); root.addView(body);

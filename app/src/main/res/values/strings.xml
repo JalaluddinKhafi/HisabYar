@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">حساب‌یار</string>
+    <string name="tagline">دفتر درآمد و مصارف شخصی • آفلاین</string>
+    <string name="save_entry">ثبت اطلاعات</string>
+    <string name="cancel">لغو</string>
+    <string name="ok">باشه</string>
+</resources>
