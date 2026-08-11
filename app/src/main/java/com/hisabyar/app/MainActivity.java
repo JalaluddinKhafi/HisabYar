@@ -58,10 +58,12 @@ public class MainActivity extends Activity {
     private void message(String text) { new AlertDialog.Builder(this).setMessage(text).setPositiveButton("باشه",null).show(); }
     private void addEntry() {
         try {
+            try { Money.parse(amount.getText().toString()); }
+            catch(IllegalArgumentException invalid) { amount.setError(invalid.getMessage()); amount.requestFocus(); return; }
             Entry entry=new Entry(Entry.newId(),type.getSelectedItemPosition()==0?"expense":"income",
                 amount.getText().toString(),currency.getSelectedItemPosition()==0?"AFN":"USD",
                 category.getSelectedItem().toString(),source.getText().toString(),note.getText().toString(),Dates.today());
-            store.upsert(entry); amount.setText(""); source.setText(""); note.setText(""); render();
+            store.upsert(entry); amount.setError(null); amount.setText(""); source.setText(""); note.setText(""); render();
             Toast.makeText(this,"ثبت شد",Toast.LENGTH_SHORT).show();
         } catch(Exception error) { message(error.getMessage()==null?"ثبت انجام نشد.":error.getMessage()); }
     }
