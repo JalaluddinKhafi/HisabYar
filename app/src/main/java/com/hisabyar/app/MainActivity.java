@@ -25,8 +25,12 @@ public class MainActivity extends Activity {
         store=new LedgerStore(getSharedPreferences("hisabyar_local",MODE_PRIVATE));
         String problem=null;
         try { store.load(); } catch(Exception error) { problem="اطلاعات قبلی خوانده نشد. برای جلوگیری از پاک‌شدن اطلاعات، ثبت غیرفعال شده است."; }
+        if(state!=null) selectedDate=state.getString("date",Dates.today());
         build(); render();
         if(problem!=null) message(problem);
+    }
+    @Override protected void onSaveInstanceState(Bundle state) {
+        state.putString("date",selectedDate); super.onSaveInstanceState(state);
     }
     private void build() {
         root=new LinearLayout(this); root.setOrientation(LinearLayout.VERTICAL); root.setLayoutDirection(View.LAYOUT_DIRECTION_RTL); root.setPadding(dp(16),dp(16),dp(16),dp(16));
