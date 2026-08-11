@@ -16,6 +16,8 @@ public class MainActivity extends Activity {
     private EditText amount, source, note;
     private Spinner type, currency, category;
     private LedgerStore store;
+    private String selectedDate=Dates.today();
+    private Button dateButton;
     private static final String[] CATEGORIES={"غذا","کرایه خانه","ترانسپورت","برق و انترنت","صحت","آموزش","خانواده","خرید خانه","سایر"};
 
     @Override public void onCreate(Bundle state) {
@@ -36,6 +38,7 @@ public class MainActivity extends Activity {
         amount=edit("مبلغ"); amount.setTextDirection(View.TEXT_DIRECTION_LTR); amount.setInputType(InputType.TYPE_CLASS_NUMBER|InputType.TYPE_NUMBER_FLAG_DECIMAL); root.addView(amount);
         currency=spinner(new String[]{"افغانی (AFN)","دالر (USD)"}); root.addView(currency);
         category=spinner(CATEGORIES); root.addView(category);
+        dateButton=button("تاریخ میلادی: "+selectedDate,()->chooseDate());
         source=edit("منبع درآمد / فروشگاه (اختیاری)"); root.addView(source);
         note=edit("توضیح (اختیاری)"); root.addView(note);
         button(getString(R.string.save_entry),()->addEntry());
@@ -56,13 +59,20 @@ public class MainActivity extends Activity {
         Button view=new Button(this); view.setText(text); view.setOnClickListener(v->action.run()); root.addView(view); return view;
     }
     private void message(String text) { new AlertDialog.Builder(this).setMessage(text).setPositiveButton("باشه",null).show(); }
+    private void chooseDate() {
+        String[] parts=selectedDate.split("-");
+        new android.app.DatePickerDialog(this,(picker,year,month,day)->{
+            selectedDate=String.format(java.util.Locale.US,"%04d-%02d-%02d",year,month+1,day);
+            dateButton.setText("تاریخ میلادی: "+selectedDate);
+        },Integer.parseInt(parts[0]),Integer.parseInt(parts[1])-1,Integer.parseInt(parts[2])).show();
+    }
     private void addEntry() {
         try {
             try { Money.parse(amount.getText().toString()); }
             catch(IllegalArgumentException invalid) { amount.setError(invalid.getMessage()); amount.requestFocus(); return; }
             Entry entry=new Entry(Entry.newId(),type.getSelectedItemPosition()==0?"expense":"income",
                 amount.getText().toString(),currency.getSelectedItemPosition()==0?"AFN":"USD",
-                category.getSelectedItem().toString(),source.getText().toString(),note.getText().toString(),Dates.today());
+                category.getSelectedItem().toString(),source.getText().toString(),note.getText().toString(),selectedDate);
             store.upsert(entry); amount.setError(null); amount.setText(""); source.setText(""); note.setText(""); render();
             Toast.makeText(this,"ثبت شد",Toast.LENGTH_SHORT).show();
         } catch(Exception error) { message(error.getMessage()==null?"ثبت انجام نشد.":error.getMessage()); }
