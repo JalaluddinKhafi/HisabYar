@@ -49,7 +49,7 @@ public class MainActivity extends Activity {
         saveButton=button(getString(R.string.save_entry),()->addEntry());
         button("پاک‌کردن فرم / لغو ویرایش",()->clearForm());
         button("گزارش امروز و این ماه",()->showReport());
-        root.addView(label("ثبت‌ها",20));
+        root.addView(label("ثبت‌ها — لمس برای ویرایش؛ فشار طولانی برای حذف",18));
         body=new LinearLayout(this); body.setOrientation(LinearLayout.VERTICAL); root.addView(body);
         ScrollView scroll=new ScrollView(this); scroll.setFillViewport(true); scroll.addView(root); setContentView(scroll);
     }
@@ -106,9 +106,9 @@ public class MainActivity extends Activity {
         amount.requestFocus();
     }
     private void delete(Entry entry) {
-        new AlertDialog.Builder(this).setTitle("حذف ثبت؟").setMessage("این ثبت حذف شود؟")
+        new AlertDialog.Builder(this).setTitle("حذف ثبت؟").setMessage(entry.date+" • "+entry.category+"\n"+Money.format(entry.amount)+" "+entry.currency+"\nاین ثبت حذف شود؟")
             .setNegativeButton("لغو",null).setPositiveButton("حذف",(dialog,which)->{
-                try { store.remove(entry.id); render(); } catch(Exception error) { message(error.getMessage()); }
+                try { store.remove(entry.id); if(entry.id.equals(editingId)) clearForm(); render(); } catch(Exception error) { message(error.getMessage()); }
             }).show();
     }
     private String totals(String prefix) {
