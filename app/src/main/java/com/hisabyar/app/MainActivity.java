@@ -17,7 +17,8 @@ public class MainActivity extends Activity {
     private Spinner type, currency, category;
     private LedgerStore store;
     private String selectedDate=Dates.today();
-    private Button dateButton;
+    private Button dateButton, saveButton;
+    private String editingId;
     private static final String[] CATEGORIES={"غذا","کرایه خانه","ترانسپورت","برق و انترنت","صحت","آموزش","خانواده","خرید خانه","سایر"};
 
     @Override public void onCreate(Bundle state) {
@@ -45,7 +46,8 @@ public class MainActivity extends Activity {
         dateButton=button("تاریخ میلادی: "+selectedDate,()->chooseDate());
         source=edit("منبع درآمد / فروشگاه (اختیاری)"); root.addView(source);
         note=edit("توضیح (اختیاری)"); root.addView(note);
-        button(getString(R.string.save_entry),()->addEntry());
+        saveButton=button(getString(R.string.save_entry),()->addEntry());
+        button("پاک‌کردن فرم / لغو ویرایش",()->clearForm());
         button("گزارش امروز و این ماه",()->showReport());
         root.addView(label("ثبت‌ها",20));
         body=new LinearLayout(this); body.setOrientation(LinearLayout.VERTICAL); root.addView(body);
@@ -74,10 +76,10 @@ public class MainActivity extends Activity {
         try {
             try { Money.parse(amount.getText().toString()); }
             catch(IllegalArgumentException invalid) { amount.setError(invalid.getMessage()); amount.requestFocus(); return; }
-            Entry entry=new Entry(Entry.newId(),type.getSelectedItemPosition()==0?"expense":"income",
+            Entry entry=new Entry(editingId==null?Entry.newId():editingId,type.getSelectedItemPosition()==0?"expense":"income",
                 amount.getText().toString(),currency.getSelectedItemPosition()==0?"AFN":"USD",
                 category.getSelectedItem().toString(),source.getText().toString(),note.getText().toString(),selectedDate);
-            store.upsert(entry); amount.setError(null); amount.setText(""); source.setText(""); note.setText(""); render();
+            store.upsert(entry); clearForm(); render();
             Toast.makeText(this,"ثبت شد",Toast.LENGTH_SHORT).show();
         } catch(Exception error) { message(error.getMessage()==null?"ثبت انجام نشد.":error.getMessage()); }
     }
@@ -87,8 +89,21 @@ public class MainActivity extends Activity {
         body.removeAllViews();
         for(Entry e:EntryFilter.select(store.entries(),null,null,null,null)) {
             TextView row=label((e.type.equals("income")?"درآمد":"مصرف")+" • "+Money.format(e.amount)+" "+e.currency+"\n"+e.date+" • "+e.category+"\n"+e.source+" "+e.note,16);
+            row.setOnClickListener(v->editEntry(e));
             row.setOnLongClickListener(v->{delete(e);return true;}); body.addView(row);
         }
+    }
+    private void clearForm() {
+        editingId=null; amount.setError(null); amount.setText(""); source.setText(""); note.setText("");
+        selectedDate=Dates.today(); dateButton.setText("تاریخ میلادی: "+selectedDate);
+        saveButton.setText(getString(R.string.save_entry));
+    }
+    private void editEntry(Entry e) {
+        editingId=e.id; amount.setText(e.amount.toPlainString()); source.setText(e.source); note.setText(e.note);
+        type.setSelection(e.type.equals("income")?1:0); currency.setSelection(e.currency.equals("USD")?1:0);
+        for(int i=0;i<category.getCount();i++) if(e.category.equals(category.getItemAtPosition(i))) category.setSelection(i);
+        selectedDate=e.date; dateButton.setText("تاریخ میلادی: "+selectedDate); saveButton.setText("ذخیرهٔ ویرایش");
+        amount.requestFocus();
     }
     private void delete(Entry entry) {
         new AlertDialog.Builder(this).setTitle("حذف ثبت؟").setMessage("این ثبت حذف شود؟")
