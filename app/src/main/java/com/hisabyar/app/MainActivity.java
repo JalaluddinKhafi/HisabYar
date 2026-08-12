@@ -19,6 +19,8 @@ public class MainActivity extends Activity {
     private String selectedDate=Dates.today();
     private Button dateButton, saveButton;
     private String editingId;
+    private Entry lastDeleted;
+    private Button undoButton;
     private static final String[] CATEGORIES={"غذا","کرایه خانه","ترانسپورت","برق و انترنت","صحت","آموزش","خانواده","خرید خانه","سایر"};
 
     @Override public void onCreate(Bundle state) {
@@ -49,6 +51,7 @@ public class MainActivity extends Activity {
         saveButton=button(getString(R.string.save_entry),()->addEntry());
         button("پاک‌کردن فرم / لغو ویرایش",()->clearForm());
         button("گزارش امروز و این ماه",()->showReport());
+        undoButton=button("بازگردانی آخرین حذف",()->undoDelete()); undoButton.setEnabled(false);
         root.addView(label("ثبت‌ها — لمس برای ویرایش؛ فشار طولانی برای حذف",18));
         body=new LinearLayout(this); body.setOrientation(LinearLayout.VERTICAL); root.addView(body);
         ScrollView scroll=new ScrollView(this); scroll.setFillViewport(true); scroll.addView(root); setContentView(scroll);
@@ -108,8 +111,13 @@ public class MainActivity extends Activity {
     private void delete(Entry entry) {
         new AlertDialog.Builder(this).setTitle("حذف ثبت؟").setMessage(entry.date+" • "+entry.category+"\n"+Money.format(entry.amount)+" "+entry.currency+"\nاین ثبت حذف شود؟")
             .setNegativeButton("لغو",null).setPositiveButton("حذف",(dialog,which)->{
-                try { store.remove(entry.id); if(entry.id.equals(editingId)) clearForm(); render(); } catch(Exception error) { message(error.getMessage()); }
+                try { lastDeleted=store.remove(entry.id); undoButton.setEnabled(true); if(entry.id.equals(editingId)) clearForm(); render(); } catch(Exception error) { message(error.getMessage()); }
             }).show();
+    }
+    private void undoDelete() {
+        if(lastDeleted==null) return;
+        try { store.upsert(lastDeleted); lastDeleted=null; undoButton.setEnabled(false); render(); }
+        catch(Exception error) { message(error.getMessage()); }
     }
     private String totals(String prefix) {
         StringBuilder text=new StringBuilder();
