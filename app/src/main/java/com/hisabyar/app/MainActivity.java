@@ -14,7 +14,7 @@ public class MainActivity extends Activity {
     private LinearLayout root, body;
     private TextView summary;
     private EditText amount, source, note;
-    private Spinner type, currency, category, filterCurrency;
+    private Spinner type, currency, category, filterCurrency, filterType;
     private LedgerStore store;
     private String selectedDate=Dates.today();
     private Button dateButton, saveButton;
@@ -55,6 +55,7 @@ public class MainActivity extends Activity {
         root.addView(label("ثبت‌ها — لمس برای ویرایش؛ فشار طولانی برای حذف",18));
         filterCurrency=spinner(new String[]{"همهٔ ارزها","AFN","USD"}); root.addView(filterCurrency);
         watch(filterCurrency);
+        filterType=spinner(new String[]{"همهٔ ثبت‌ها","مصرف","درآمد"}); root.addView(filterType); watch(filterType);
         body=new LinearLayout(this); body.setOrientation(LinearLayout.VERTICAL); root.addView(body);
         ScrollView scroll=new ScrollView(this); scroll.setFillViewport(true); scroll.addView(root); setContentView(scroll);
     }
@@ -98,7 +99,7 @@ public class MainActivity extends Activity {
         String month=Dates.today().substring(0,7);
         summary.setText("این ماه ("+month+")\n"+totals(month));
         body.removeAllViews();
-        for(Entry e:EntryFilter.select(store.entries(),filterCurrency.getSelectedItemPosition()==0?null:filterCurrency.getSelectedItem().toString(),null,null,null)) {
+        for(Entry e:EntryFilter.select(store.entries(),filterCurrency.getSelectedItemPosition()==0?null:filterCurrency.getSelectedItem().toString(),filterType.getSelectedItemPosition()==0?null:filterType.getSelectedItemPosition()==1?"expense":"income",null,null)) {
             TextView row=label((e.type.equals("income")?"درآمد":"مصرف")+" • "+Money.format(e.amount)+" "+e.currency+"\n"+e.date+" • "+e.category+"\n"+e.source+" "+e.note,16);
             row.setOnClickListener(v->editEntry(e));
             row.setOnLongClickListener(v->{delete(e);return true;}); body.addView(row);
