@@ -14,7 +14,7 @@ public class MainActivity extends Activity {
     private LinearLayout root, body;
     private TextView summary;
     private EditText amount, source, note;
-    private Spinner type, currency, category;
+    private Spinner type, currency, category, filterCurrency;
     private LedgerStore store;
     private String selectedDate=Dates.today();
     private Button dateButton, saveButton;
@@ -53,6 +53,8 @@ public class MainActivity extends Activity {
         button("گزارش امروز و این ماه",()->showReport());
         undoButton=button("بازگردانی آخرین حذف",()->undoDelete()); undoButton.setEnabled(false);
         root.addView(label("ثبت‌ها — لمس برای ویرایش؛ فشار طولانی برای حذف",18));
+        filterCurrency=spinner(new String[]{"همهٔ ارزها","AFN","USD"}); root.addView(filterCurrency);
+        watch(filterCurrency);
         body=new LinearLayout(this); body.setOrientation(LinearLayout.VERTICAL); root.addView(body);
         ScrollView scroll=new ScrollView(this); scroll.setFillViewport(true); scroll.addView(root); setContentView(scroll);
     }
@@ -63,6 +65,12 @@ public class MainActivity extends Activity {
     private EditText edit(String hint) { EditText view=new EditText(this); view.setHint(hint); return view; }
     private Spinner spinner(String[] values) {
         Spinner view=new Spinner(this); view.setAdapter(new ArrayAdapter<>(this,android.R.layout.simple_spinner_dropdown_item,values)); return view;
+    }
+    private void watch(Spinner view) {
+        view.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            public void onItemSelected(AdapterView<?> parent,View child,int position,long id) { if(body!=null) render(); }
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
     }
     private Button button(String text,Runnable action) {
         Button view=new Button(this); view.setText(text); view.setOnClickListener(v->action.run()); root.addView(view); return view;
@@ -90,7 +98,7 @@ public class MainActivity extends Activity {
         String month=Dates.today().substring(0,7);
         summary.setText("این ماه ("+month+")\n"+totals(month));
         body.removeAllViews();
-        for(Entry e:EntryFilter.select(store.entries(),null,null,null,null)) {
+        for(Entry e:EntryFilter.select(store.entries(),filterCurrency.getSelectedItemPosition()==0?null:filterCurrency.getSelectedItem().toString(),null,null,null)) {
             TextView row=label((e.type.equals("income")?"درآمد":"مصرف")+" • "+Money.format(e.amount)+" "+e.currency+"\n"+e.date+" • "+e.category+"\n"+e.source+" "+e.note,16);
             row.setOnClickListener(v->editEntry(e));
             row.setOnLongClickListener(v->{delete(e);return true;}); body.addView(row);
