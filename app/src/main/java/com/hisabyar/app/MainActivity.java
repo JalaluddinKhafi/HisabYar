@@ -13,7 +13,7 @@ import java.util.List;
 public class MainActivity extends Activity {
     private LinearLayout root, body;
     private TextView summary;
-    private EditText amount, source, note;
+    private EditText amount, source, note, search;
     private Spinner type, currency, category, filterCurrency, filterType, filterPeriod;
     private LedgerStore store;
     private String selectedDate=Dates.today();
@@ -57,6 +57,12 @@ public class MainActivity extends Activity {
         watch(filterCurrency);
         filterType=spinner(new String[]{"همهٔ ثبت‌ها","مصرف","درآمد"}); root.addView(filterType); watch(filterType);
         filterPeriod=spinner(new String[]{"همهٔ تاریخ‌ها","امروز","این ماه"}); root.addView(filterPeriod); watch(filterPeriod);
+        search=edit("جستجو در توضیح، منبع، دسته، مبلغ یا تاریخ"); root.addView(search);
+        search.addTextChangedListener(new android.text.TextWatcher() {
+            public void beforeTextChanged(CharSequence s,int start,int count,int after) {}
+            public void onTextChanged(CharSequence s,int start,int before,int count) { if(body!=null) render(); }
+            public void afterTextChanged(android.text.Editable s) {}
+        });
         body=new LinearLayout(this); body.setOrientation(LinearLayout.VERTICAL); root.addView(body);
         ScrollView scroll=new ScrollView(this); scroll.setFillViewport(true); scroll.addView(root); setContentView(scroll);
     }
@@ -104,7 +110,7 @@ public class MainActivity extends Activity {
         String month=Dates.today().substring(0,7);
         summary.setText("این ماه ("+month+")\n"+totals(month));
         body.removeAllViews();
-        for(Entry e:EntryFilter.select(store.entries(),filterCurrency.getSelectedItemPosition()==0?null:filterCurrency.getSelectedItem().toString(),filterType.getSelectedItemPosition()==0?null:filterType.getSelectedItemPosition()==1?"expense":"income",periodPrefix(),null)) {
+        for(Entry e:EntryFilter.select(store.entries(),filterCurrency.getSelectedItemPosition()==0?null:filterCurrency.getSelectedItem().toString(),filterType.getSelectedItemPosition()==0?null:filterType.getSelectedItemPosition()==1?"expense":"income",periodPrefix(),search.getText().toString())) {
             TextView row=label((e.type.equals("income")?"درآمد":"مصرف")+" • "+Money.format(e.amount)+" "+e.currency+"\n"+e.date+" • "+e.category+"\n"+e.source+" "+e.note,16);
             row.setOnClickListener(v->editEntry(e));
             row.setOnLongClickListener(v->{delete(e);return true;}); body.addView(row);
