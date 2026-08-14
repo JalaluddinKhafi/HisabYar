@@ -29,10 +29,17 @@ public class MainActivity extends Activity {
         String problem=null;
         try { store.load(); } catch(Exception error) { problem="اطلاعات قبلی خوانده نشد. برای جلوگیری از پاک‌شدن اطلاعات، ثبت غیرفعال شده است."; }
         if(state!=null) selectedDate=state.getString("date",Dates.today());
-        build(); render();
+        build();
+        if(state!=null) {
+            filterCurrency.setSelection(state.getInt("filterCurrency",0)); filterType.setSelection(state.getInt("filterType",0));
+            filterPeriod.setSelection(state.getInt("filterPeriod",0)); search.setText(state.getString("search",""));
+        }
+        render();
         if(problem!=null) message(problem);
     }
     @Override protected void onSaveInstanceState(Bundle state) {
+        state.putInt("filterCurrency",filterCurrency.getSelectedItemPosition()); state.putInt("filterType",filterType.getSelectedItemPosition());
+        state.putInt("filterPeriod",filterPeriod.getSelectedItemPosition()); state.putString("search",search.getText().toString());
         state.putString("date",selectedDate); super.onSaveInstanceState(state);
     }
     private void build() {
