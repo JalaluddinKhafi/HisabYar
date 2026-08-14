@@ -21,6 +21,7 @@ public class MainActivity extends Activity {
     private String editingId;
     private Entry lastDeleted;
     private Button undoButton;
+    private int visibleLimit=50;
     private static final String[] CATEGORIES={"غذا","کرایه خانه","ترانسپورت","برق و انترنت","صحت","آموزش","خانواده","خرید خانه","سایر"};
 
     @Override public void onCreate(Bundle state) {
@@ -67,7 +68,7 @@ public class MainActivity extends Activity {
         search=edit("جستجو در توضیح، منبع، دسته، مبلغ یا تاریخ"); root.addView(search);
         search.addTextChangedListener(new android.text.TextWatcher() {
             public void beforeTextChanged(CharSequence s,int start,int count,int after) {}
-            public void onTextChanged(CharSequence s,int start,int before,int count) { if(body!=null) render(); }
+            public void onTextChanged(CharSequence s,int start,int before,int count) { if(body!=null) { visibleLimit=50; render(); } }
             public void afterTextChanged(android.text.Editable s) {}
         });
         body=new LinearLayout(this); body.setOrientation(LinearLayout.VERTICAL); root.addView(body);
@@ -83,7 +84,7 @@ public class MainActivity extends Activity {
     }
     private void watch(Spinner view) {
         view.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            public void onItemSelected(AdapterView<?> parent,View child,int position,long id) { if(body!=null) render(); }
+            public void onItemSelected(AdapterView<?> parent,View child,int position,long id) { if(body!=null) { visibleLimit=50; render(); } }
             public void onNothingSelected(AdapterView<?> parent) {}
         });
     }
@@ -117,10 +118,17 @@ public class MainActivity extends Activity {
         String month=Dates.today().substring(0,7);
         summary.setText("این ماه ("+month+")\n"+totals(month));
         body.removeAllViews();
-        for(Entry e:EntryFilter.select(store.entries(),filterCurrency.getSelectedItemPosition()==0?null:filterCurrency.getSelectedItem().toString(),filterType.getSelectedItemPosition()==0?null:filterType.getSelectedItemPosition()==1?"expense":"income",periodPrefix(),search.getText().toString())) {
+        List<Entry> filtered=EntryFilter.select(store.entries(),filterCurrency.getSelectedItemPosition()==0?null:filterCurrency.getSelectedItem().toString(),filterType.getSelectedItemPosition()==0?null:filterType.getSelectedItemPosition()==1?"expense":"income",periodPrefix(),search.getText().toString());
+        int shown=0;
+        for(Entry e:filtered) {
+            if(shown++>=visibleLimit) break;
             TextView row=label((e.type.equals("income")?"درآمد":"مصرف")+" • "+Money.format(e.amount)+" "+e.currency+"\n"+e.date+" • "+e.category+"\n"+e.source+" "+e.note,16);
             row.setOnClickListener(v->editEntry(e));
             row.setOnLongClickListener(v->{delete(e);return true;}); body.addView(row);
+        }
+        if(filtered.size()>visibleLimit) {
+            Button more=new Button(this); more.setText("نمایش ۵۰ ثبت دیگر");
+            more.setOnClickListener(v->{visibleLimit+=50; render();}); body.addView(more);
         }
     }
     private void clearForm() {
