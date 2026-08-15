@@ -59,6 +59,7 @@ public class MainActivity extends Activity {
         saveButton=button(getString(R.string.save_entry),()->addEntry());
         button("پاک‌کردن فرم / لغو ویرایش",()->clearForm());
         button("گزارش امروز و این ماه",()->showReport());
+        button("مصارف این ماه بر اساس دسته",()->message(CategoryReport.expenses(store.entries(),Dates.today().substring(0,7))));
         undoButton=button("بازگردانی آخرین حذف",()->undoDelete()); undoButton.setEnabled(false);
         root.addView(label("ثبت‌ها — لمس برای ویرایش؛ فشار طولانی برای حذف",18));
         filterCurrency=spinner(new String[]{"همهٔ ارزها","AFN","USD"}); root.addView(filterCurrency);
