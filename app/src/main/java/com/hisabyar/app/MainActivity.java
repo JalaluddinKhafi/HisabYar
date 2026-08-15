@@ -116,7 +116,9 @@ public class MainActivity extends Activity {
     }
     private void render() {
         String month=Dates.today().substring(0,7);
-        summary.setText("این ماه ("+month+")\n"+totals(month));
+        summary.setText("خلاصهٔ همهٔ ثبت‌های این ماه ("+month+")\n"+totals(month));
+        boolean deficit=Ledger.balance(store.entries(),"AFN",month).signum()<0 || Ledger.balance(store.entries(),"USD",month).signum()<0;
+        summary.setTextColor(deficit?Color.rgb(160,35,35):Color.rgb(20,90,50));
         body.removeAllViews();
         List<Entry> filtered=EntryFilter.select(store.entries(),filterCurrency.getSelectedItemPosition()==0?null:filterCurrency.getSelectedItem().toString(),filterType.getSelectedItemPosition()==0?null:filterType.getSelectedItemPosition()==1?"expense":"income",periodPrefix(),search.getText().toString());
         if(filtered.isEmpty()) body.addView(label(store.isReadOnly()?"اطلاعات خوانده نشد؛ نسخهٔ خام را ذخیره کنید.":store.entries().isEmpty()?"هنوز ثبتی ندارید. اولین درآمد یا مصرف را وارد کنید.":"هیچ ثبتی با این فیلترها پیدا نشد.",16));
