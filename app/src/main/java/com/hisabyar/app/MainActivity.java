@@ -119,6 +119,8 @@ public class MainActivity extends Activity {
         summary.setText("این ماه ("+month+")\n"+totals(month));
         body.removeAllViews();
         List<Entry> filtered=EntryFilter.select(store.entries(),filterCurrency.getSelectedItemPosition()==0?null:filterCurrency.getSelectedItem().toString(),filterType.getSelectedItemPosition()==0?null:filterType.getSelectedItemPosition()==1?"expense":"income",periodPrefix(),search.getText().toString());
+        if(filtered.isEmpty()) body.addView(label(store.isReadOnly()?"اطلاعات خوانده نشد؛ نسخهٔ خام را ذخیره کنید.":store.entries().isEmpty()?"هنوز ثبتی ندارید. اولین درآمد یا مصرف را وارد کنید.":"هیچ ثبتی با این فیلترها پیدا نشد.",16));
+        else body.addView(label("تعداد نتایج: "+filtered.size(),14));
         int shown=0;
         for(Entry e:filtered) {
             if(shown++>=visibleLimit) break;
