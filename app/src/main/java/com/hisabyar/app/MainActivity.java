@@ -175,7 +175,13 @@ public class MainActivity extends Activity {
         try { startActivityForResult(intent,41); } catch(android.content.ActivityNotFoundException error) { message("انتخابگر فایل روی دستگاه موجود نیست."); }
     }
     private void previewImport(List<Entry> imported) {
-        message("پشتیبان معتبر است. تعداد ثبت‌ها: "+imported.size());
+        if(store.isReadOnly()) { message("برای محافظت از دادهٔ خراب، بازیابی غیرفعال است. ابتدا نسخهٔ خام را خروجی بگیرید."); return; }
+        new AlertDialog.Builder(this).setTitle("جایگزینی تمام اطلاعات؟")
+            .setMessage("پشتیبان معتبر است: "+imported.size()+" ثبت.\nتمام "+store.entries().size()+" ثبت فعلی جایگزین می‌شوند. ابتدا از اطلاعات فعلی پشتیبان بگیرید.")
+            .setNegativeButton("لغو",null).setPositiveButton("جایگزینی",(dialog,which)->{
+                try { store.replace(imported); lastDeleted=null; undoButton.setEnabled(false); clearForm(); render(); message("بازیابی انجام شد."); }
+                catch(Exception error) { message("بازیابی انجام نشد: "+error.getMessage()); }
+            }).show();
     }
     private void createDocument(int request,String mime,String filename) {
         android.content.Intent intent=new android.content.Intent(android.content.Intent.ACTION_CREATE_DOCUMENT);
