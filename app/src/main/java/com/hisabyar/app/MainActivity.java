@@ -59,6 +59,7 @@ public class MainActivity extends Activity {
         saveButton=button(getString(R.string.save_entry),()->addEntry());
         button("پاک‌کردن فرم / لغو ویرایش",()->clearForm());
         button("گزارش امروز و این ماه",()->showReport());
+        button("بازیابی پشتیبان JSON",()->openBackup());
         button("ذخیرهٔ فایل پشتیبان JSON",()->createDocument(40,"application/json","HisabYar-"+Dates.today()+".json"));
         button("مصارف این ماه بر اساس دسته",()->message(CategoryReport.expenses(store.entries(),Dates.today().substring(0,7))));
         undoButton=button("بازگردانی آخرین حذف",()->undoDelete()); undoButton.setEnabled(false);
@@ -168,6 +169,14 @@ public class MainActivity extends Activity {
             .append(Money.format(Ledger.balance(store.entries(),cur,prefix))).append("\n");
         return text.toString();
     }
+    private void openBackup() {
+        android.content.Intent intent=new android.content.Intent(android.content.Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(android.content.Intent.CATEGORY_OPENABLE); intent.setType("*/*");
+        try { startActivityForResult(intent,41); } catch(android.content.ActivityNotFoundException error) { message("انتخابگر فایل روی دستگاه موجود نیست."); }
+    }
+    private void previewImport(List<Entry> imported) {
+        message("پشتیبان معتبر است. تعداد ثبت‌ها: "+imported.size());
+    }
     private void createDocument(int request,String mime,String filename) {
         android.content.Intent intent=new android.content.Intent(android.content.Intent.ACTION_CREATE_DOCUMENT);
         intent.addCategory(android.content.Intent.CATEGORY_OPENABLE); intent.setType(mime);
@@ -180,6 +189,12 @@ public class MainActivity extends Activity {
         super.onActivityResult(request,result,data);
         if(result!=RESULT_OK || data==null || data.getData()==null) return;
         android.net.Uri uri=data.getData();
+        if(request==41) {
+            background(()->{
+                try { List<Entry> imported=BackupCodec.decode(DocumentFiles.read(getContentResolver().openInputStream(uri))); onUi(()->previewImport(imported)); }
+                catch(Exception error) { onUi(()->message("پشتیبان نامعتبر یا خواندن فایل ناممکن است. اطلاعات فعلی تغییر نکرد.")); }
+            });
+        }
         if(request==40) {
             final String text;
             try { text=BackupCodec.encode(store.entries()); } catch(Exception error) { message("تهیهٔ پشتیبان انجام نشد."); return; }
