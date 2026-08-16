@@ -59,6 +59,7 @@ public class MainActivity extends Activity {
         saveButton=button(getString(R.string.save_entry),()->addEntry());
         button("پاک‌کردن فرم / لغو ویرایش",()->clearForm());
         button("گزارش امروز و این ماه",()->showReport());
+        button("ذخیرهٔ فایل پشتیبان JSON",()->createDocument(40,"application/json","HisabYar-"+Dates.today()+".json"));
         button("مصارف این ماه بر اساس دسته",()->message(CategoryReport.expenses(store.entries(),Dates.today().substring(0,7))));
         undoButton=button("بازگردانی آخرین حذف",()->undoDelete()); undoButton.setEnabled(false);
         root.addView(label("ثبت‌ها — لمس برای ویرایش؛ فشار طولانی برای حذف",18));
@@ -166,6 +167,27 @@ public class MainActivity extends Activity {
             .append(Money.format(Ledger.sum(store.entries(),"expense",cur,prefix))).append("\nخالص: ")
             .append(Money.format(Ledger.balance(store.entries(),cur,prefix))).append("\n");
         return text.toString();
+    }
+    private void createDocument(int request,String mime,String filename) {
+        android.content.Intent intent=new android.content.Intent(android.content.Intent.ACTION_CREATE_DOCUMENT);
+        intent.addCategory(android.content.Intent.CATEGORY_OPENABLE); intent.setType(mime);
+        intent.putExtra(android.content.Intent.EXTRA_TITLE,filename);
+        try { startActivityForResult(intent,request); } catch(android.content.ActivityNotFoundException error) { message("انتخابگر فایل روی دستگاه موجود نیست."); }
+    }
+    private void background(Runnable work) { new Thread(work,"HisabYar-files").start(); }
+    private void onUi(Runnable work) { runOnUiThread(()->{if(!isFinishing() && !isDestroyed()) work.run();}); }
+    @Override protected void onActivityResult(int request,int result,android.content.Intent data) {
+        super.onActivityResult(request,result,data);
+        if(result!=RESULT_OK || data==null || data.getData()==null) return;
+        android.net.Uri uri=data.getData();
+        if(request==40) {
+            final String text;
+            try { text=BackupCodec.encode(store.entries()); } catch(Exception error) { message("تهیهٔ پشتیبان انجام نشد."); return; }
+            background(()->{
+                try { DocumentFiles.write(getContentResolver().openOutputStream(uri,"wt"),text); onUi(()->message("فایل ذخیره شد. آن را در جای امن نگه دارید.")); }
+                catch(Exception error) { onUi(()->message("نوشتن فایل انجام نشد؛ فایل مقصد را بررسی کنید.")); }
+            });
+        }
     }
     private void showReport() {
         String today=Dates.today(); message("گزارش امروز ("+today+")\n"+totals(today)+"\nاین ماه\n"+totals(today.substring(0,7)));
