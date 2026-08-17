@@ -59,6 +59,7 @@ public class MainActivity extends Activity {
         saveButton=button(getString(R.string.save_entry),()->addEntry());
         button("پاک‌کردن فرم / لغو ویرایش",()->clearForm());
         button("گزارش امروز و این ماه",()->showReport());
+        button("خروجی CSV همهٔ ثبت‌ها",()->createDocument(43,"text/csv","HisabYar-"+Dates.today()+".csv"));
         button("بازیابی پشتیبان JSON",()->openBackup());
         button("خروجی خام برای بازیابی اطلاعات خراب",()->createDocument(42,"application/json","HisabYar-raw-"+Dates.today()+".json"));
         button("ذخیرهٔ فایل پشتیبان JSON",()->createDocument(40,"application/json","HisabYar-"+Dates.today()+".json"));
@@ -202,10 +203,10 @@ public class MainActivity extends Activity {
                 catch(Exception error) { onUi(()->message("پشتیبان نامعتبر یا خواندن فایل ناممکن است. اطلاعات فعلی تغییر نکرد.")); }
             });
         }
-        if(request==40 && store.isReadOnly()) { message("اطلاعات خوانده نشد؛ از گزینهٔ خروجی خام استفاده کنید."); return; }
-        if(request==40 || request==42) {
+        if((request==40 || request==43) && store.isReadOnly()) { message("اطلاعات خوانده نشد؛ از گزینهٔ خروجی خام استفاده کنید."); return; }
+        if(request==40 || request==42 || request==43) {
             final String text;
-            try { text=request==42?store.raw():BackupCodec.encode(store.entries()); } catch(Exception error) { message("تهیهٔ پشتیبان انجام نشد."); return; }
+            try { text=request==42?store.raw():request==43?CsvExport.encode(store.entries()):BackupCodec.encode(store.entries()); } catch(Exception error) { message("تهیهٔ پشتیبان انجام نشد."); return; }
             background(()->{
                 try { DocumentFiles.write(getContentResolver().openOutputStream(uri,"wt"),text); onUi(()->message("فایل ذخیره شد. آن را در جای امن نگه دارید.")); }
                 catch(Exception error) { onUi(()->message("نوشتن فایل انجام نشد؛ فایل مقصد را بررسی کنید.")); }
