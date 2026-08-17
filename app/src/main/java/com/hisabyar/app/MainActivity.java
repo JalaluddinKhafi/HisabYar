@@ -35,10 +35,18 @@ public class MainActivity extends Activity {
             filterCurrency.setSelection(state.getInt("filterCurrency",0)); filterType.setSelection(state.getInt("filterType",0));
             filterPeriod.setSelection(state.getInt("filterPeriod",0)); search.setText(state.getString("search",""));
         }
+        if(state!=null) {
+            amount.setText(state.getString("amount","")); source.setText(state.getString("source","")); note.setText(state.getString("note",""));
+            type.setSelection(state.getInt("type",0)); currency.setSelection(state.getInt("currency",0)); category.setSelection(state.getInt("category",0));
+            editingId=state.getString("editingId"); if(editingId!=null) saveButton.setText("ذخیرهٔ ویرایش");
+        }
         render();
         if(problem!=null) message(problem);
     }
     @Override protected void onSaveInstanceState(Bundle state) {
+        state.putString("amount",amount.getText().toString()); state.putString("source",source.getText().toString()); state.putString("note",note.getText().toString());
+        state.putInt("type",type.getSelectedItemPosition()); state.putInt("currency",currency.getSelectedItemPosition()); state.putInt("category",category.getSelectedItemPosition());
+        state.putString("editingId",editingId);
         state.putInt("filterCurrency",filterCurrency.getSelectedItemPosition()); state.putInt("filterType",filterType.getSelectedItemPosition());
         state.putInt("filterPeriod",filterPeriod.getSelectedItemPosition()); state.putString("search",search.getText().toString());
         state.putString("date",selectedDate); super.onSaveInstanceState(state);
