@@ -40,6 +40,10 @@ public class MainActivity extends Activity {
             type.setSelection(state.getInt("type",0)); currency.setSelection(state.getInt("currency",0)); category.setSelection(state.getInt("category",0));
             editingId=state.getString("editingId"); if(editingId!=null) saveButton.setText("ذخیرهٔ ویرایش");
         }
+        if(state!=null && state.containsKey("lastDeleted")) {
+            try { lastDeleted=Entry.fromJson(new org.json.JSONObject(state.getString("lastDeleted"))); undoButton.setEnabled(true); }
+            catch(Exception ignored) { lastDeleted=null; }
+        }
         render();
         if(problem!=null) message(problem);
     }
@@ -47,6 +51,7 @@ public class MainActivity extends Activity {
         state.putString("amount",amount.getText().toString()); state.putString("source",source.getText().toString()); state.putString("note",note.getText().toString());
         state.putInt("type",type.getSelectedItemPosition()); state.putInt("currency",currency.getSelectedItemPosition()); state.putInt("category",category.getSelectedItemPosition());
         state.putString("editingId",editingId);
+        if(lastDeleted!=null) try { state.putString("lastDeleted",lastDeleted.toJson().toString()); } catch(org.json.JSONException ignored) {}
         state.putInt("filterCurrency",filterCurrency.getSelectedItemPosition()); state.putInt("filterType",filterType.getSelectedItemPosition());
         state.putInt("filterPeriod",filterPeriod.getSelectedItemPosition()); state.putString("search",search.getText().toString());
         state.putString("date",selectedDate); super.onSaveInstanceState(state);
