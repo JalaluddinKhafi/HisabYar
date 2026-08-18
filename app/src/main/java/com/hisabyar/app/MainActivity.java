@@ -22,7 +22,7 @@ public class MainActivity extends Activity {
     private Entry lastDeleted;
     private Button undoButton;
     private int visibleLimit=50;
-    private static final String[] CATEGORIES={"غذا","کرایه خانه","ترانسپورت","برق و انترنت","صحت","آموزش","خانواده","خرید خانه","سایر"};
+    private static final String[] CATEGORIES={"غذا","کرایه خانه","ترانسپورت","برق و انترنت","صحت","آموزش","خانواده","خرید خانه","معاش","فروش","هدیه","کار آزاد","سایر"};
 
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
@@ -65,7 +65,9 @@ public class MainActivity extends Activity {
         type=spinner(new String[]{"مصرف","درآمد"}); root.addView(type);
         amount=edit("مبلغ"); amount.setTextDirection(View.TEXT_DIRECTION_LTR); amount.setInputType(InputType.TYPE_CLASS_NUMBER|InputType.TYPE_NUMBER_FLAG_DECIMAL); root.addView(amount);
         currency=spinner(new String[]{"افغانی (AFN)","دالر (USD)"}); root.addView(currency);
-        category=spinner(CATEGORIES); root.addView(category);
+        java.util.LinkedHashSet<String> categories=new java.util.LinkedHashSet<>(java.util.Arrays.asList(CATEGORIES));
+        for(Entry entry:store.entries()) categories.add(entry.category);
+        category=spinner(categories.toArray(new String[0])); root.addView(category);
         type.setContentDescription("نوع ثبت"); currency.setContentDescription("ارز ثبت"); category.setContentDescription("دسته‌بندی ثبت");
         dateButton=button("تاریخ میلادی: "+selectedDate,()->chooseDate());
         source=edit("منبع درآمد / فروشگاه (اختیاری)"); root.addView(source);
@@ -164,7 +166,12 @@ public class MainActivity extends Activity {
     private void editEntry(Entry e) {
         editingId=e.id; amount.setText(e.amount.toPlainString()); source.setText(e.source); note.setText(e.note);
         type.setSelection(e.type.equals("income")?1:0); currency.setSelection(e.currency.equals("USD")?1:0);
-        for(int i=0;i<category.getCount();i++) if(e.category.equals(category.getItemAtPosition(i))) category.setSelection(i);
+        boolean foundCategory=false;
+        for(int i=0;i<category.getCount();i++) if(e.category.equals(category.getItemAtPosition(i))) { category.setSelection(i); foundCategory=true; }
+        if(!foundCategory) {
+            java.util.ArrayList<String> values=new java.util.ArrayList<>(); for(int i=0;i<category.getCount();i++) values.add(category.getItemAtPosition(i).toString()); values.add(e.category);
+            category.setAdapter(new ArrayAdapter<>(this,android.R.layout.simple_spinner_dropdown_item,values)); category.setSelection(values.size()-1);
+        }
         selectedDate=e.date; dateButton.setText("تاریخ میلادی: "+selectedDate); saveButton.setText("ذخیرهٔ ویرایش");
         amount.requestFocus();
     }
