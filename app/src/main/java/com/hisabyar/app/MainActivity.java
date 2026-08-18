@@ -61,6 +61,7 @@ public class MainActivity extends Activity {
         amount=edit("مبلغ"); amount.setTextDirection(View.TEXT_DIRECTION_LTR); amount.setInputType(InputType.TYPE_CLASS_NUMBER|InputType.TYPE_NUMBER_FLAG_DECIMAL); root.addView(amount);
         currency=spinner(new String[]{"افغانی (AFN)","دالر (USD)"}); root.addView(currency);
         category=spinner(CATEGORIES); root.addView(category);
+        type.setContentDescription("نوع ثبت"); currency.setContentDescription("ارز ثبت"); category.setContentDescription("دسته‌بندی ثبت");
         dateButton=button("تاریخ میلادی: "+selectedDate,()->chooseDate());
         source=edit("منبع درآمد / فروشگاه (اختیاری)"); root.addView(source);
         note=edit("توضیح (اختیاری)"); root.addView(note);
@@ -84,6 +85,7 @@ public class MainActivity extends Activity {
             public void onTextChanged(CharSequence s,int start,int before,int count) { if(body!=null) { visibleLimit=50; render(); } }
             public void afterTextChanged(android.text.Editable s) {}
         });
+        filterCurrency.setContentDescription("فیلتر ارز"); filterType.setContentDescription("فیلتر نوع ثبت"); filterPeriod.setContentDescription("فیلتر بازهٔ زمانی");
         body=new LinearLayout(this); body.setOrientation(LinearLayout.VERTICAL); root.addView(body);
         ScrollView scroll=new ScrollView(this); scroll.setFillViewport(true); scroll.addView(root); setContentView(scroll);
     }
@@ -102,7 +104,7 @@ public class MainActivity extends Activity {
         });
     }
     private Button button(String text,Runnable action) {
-        Button view=new Button(this); view.setText(text); view.setOnClickListener(v->action.run()); root.addView(view); return view;
+        Button view=new Button(this); view.setText(text); view.setMinHeight(dp(48)); view.setOnClickListener(v->action.run()); root.addView(view); return view;
     }
     private void message(String text) { new AlertDialog.Builder(this).setMessage(text).setPositiveButton("باشه",null).show(); }
     private void chooseDate() {
@@ -140,6 +142,7 @@ public class MainActivity extends Activity {
         for(Entry e:filtered) {
             if(shown++>=visibleLimit) break;
             TextView row=label((e.type.equals("income")?"درآمد":"مصرف")+" • "+Money.format(e.amount)+" "+e.currency+"\n"+e.date+" • "+e.category+"\n"+e.source+" "+e.note,16);
+            row.setFocusable(true); row.setContentDescription(row.getText()+"؛ لمس برای ویرایش، فشار طولانی برای حذف");
             row.setOnClickListener(v->editEntry(e));
             row.setOnLongClickListener(v->{delete(e);return true;}); body.addView(row);
         }
