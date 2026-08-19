@@ -72,6 +72,9 @@ public class MainActivity extends Activity {
         dateButton=button("تاریخ میلادی: "+selectedDate,()->chooseDate());
         source=edit("منبع درآمد / فروشگاه (اختیاری)"); root.addView(source);
         note=edit("توضیح (اختیاری)"); root.addView(note);
+        amount.setFilters(new android.text.InputFilter[]{new android.text.InputFilter.LengthFilter(24)});
+        source.setFilters(new android.text.InputFilter[]{new android.text.InputFilter.LengthFilter(200)});
+        note.setFilters(new android.text.InputFilter[]{new android.text.InputFilter.LengthFilter(1000)});
         saveButton=button(getString(R.string.save_entry),()->addEntry());
         button("پاک‌کردن فرم / لغو ویرایش",()->clearForm());
         button("گزارش امروز و این ماه",()->showReport());
@@ -86,7 +89,7 @@ public class MainActivity extends Activity {
         watch(filterCurrency);
         filterType=spinner(new String[]{"همهٔ ثبت‌ها","مصرف","درآمد"}); root.addView(filterType); watch(filterType);
         filterPeriod=spinner(new String[]{"همهٔ تاریخ‌ها","امروز","این ماه"}); root.addView(filterPeriod); watch(filterPeriod);
-        search=edit("جستجو در توضیح، منبع، دسته، مبلغ یا تاریخ"); root.addView(search);
+        search=edit("جستجو در توضیح، منبع، دسته، مبلغ یا تاریخ"); search.setFilters(new android.text.InputFilter[]{new android.text.InputFilter.LengthFilter(200)}); root.addView(search);
         search.addTextChangedListener(new android.text.TextWatcher() {
             public void beforeTextChanged(CharSequence s,int start,int count,int after) {}
             public void onTextChanged(CharSequence s,int start,int before,int count) { if(body!=null) { visibleLimit=50; render(); } }

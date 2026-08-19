@@ -10,7 +10,7 @@ public final class Money {
     private Money() {}
     public static BigDecimal parse(String text) {
         text = normalize(text);
-        if (!text.trim().matches("[0-9]+(\\.[0-9]{1,2})?")) {
+        if (text.length()>24 || !text.trim().matches("[0-9]+(\\.[0-9]{1,2})?")) {
             throw new IllegalArgumentException("مبلغ را با حداکثر دو رقم اعشار وارد کنید.");
         }
         BigDecimal value = new BigDecimal(text.trim()).setScale(2, RoundingMode.UNNECESSARY);
