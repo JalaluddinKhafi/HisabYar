@@ -76,7 +76,7 @@ public class MainActivity extends Activity {
         source.setFilters(new android.text.InputFilter[]{new android.text.InputFilter.LengthFilter(200)});
         note.setFilters(new android.text.InputFilter[]{new android.text.InputFilter.LengthFilter(1000)});
         saveButton=button(getString(R.string.save_entry),()->addEntry());
-        button("پاک‌کردن فرم / لغو ویرایش",()->clearForm());
+        button("پاک‌کردن فرم / لغو ویرایش",()->confirmDiscard(()->clearForm()));
         button("گزارش امروز و این ماه",()->showReport());
         button("خروجی CSV همهٔ ثبت‌ها",()->createDocument(43,"text/csv","HisabYar-"+Dates.today()+".csv"));
         button("بازیابی پشتیبان JSON",()->openBackup());
@@ -153,7 +153,7 @@ public class MainActivity extends Activity {
             if(shown++>=visibleLimit) break;
             TextView row=label((e.type.equals("income")?"درآمد":"مصرف")+" • "+Money.format(e.amount)+" "+e.currency+"\n"+e.date+" • "+e.category+"\n"+e.source+" "+e.note,16);
             row.setFocusable(true); row.setContentDescription(row.getText()+"؛ لمس برای ویرایش، فشار طولانی برای حذف");
-            row.setOnClickListener(v->editEntry(e));
+            row.setOnClickListener(v->confirmDiscard(()->editEntry(e)));
             row.setOnLongClickListener(v->{delete(e);return true;}); body.addView(row);
         }
         if(filtered.size()>visibleLimit) {
@@ -161,6 +161,15 @@ public class MainActivity extends Activity {
             more.setOnClickListener(v->{visibleLimit+=50; render();}); body.addView(more);
         }
     }
+    private boolean hasDraft() {
+        return editingId!=null || !amount.getText().toString().isEmpty() || !source.getText().toString().isEmpty() || !note.getText().toString().isEmpty();
+    }
+    private void confirmDiscard(Runnable action) {
+        if(!hasDraft()) { action.run(); return; }
+        new AlertDialog.Builder(this).setMessage("تغییرات ذخیره‌نشدهٔ فرم کنار گذاشته شوند؟")
+            .setNegativeButton("لغو",null).setPositiveButton("کنارگذاشتن",(dialog,which)->action.run()).show();
+    }
+    @Override public void onBackPressed() { confirmDiscard(()->finish()); }
     private void clearForm() {
         editingId=null; amount.setError(null); amount.setText(""); source.setText(""); note.setText("");
         selectedDate=Dates.today(); dateButton.setText("تاریخ میلادی: "+selectedDate);
