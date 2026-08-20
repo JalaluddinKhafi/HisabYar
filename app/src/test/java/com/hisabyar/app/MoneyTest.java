@@ -15,5 +15,12 @@ public class MoneyTest {
         assertEquals(Money.parse("123.45"), Money.parse("۱۲۳٫۴۵"));
         assertEquals(Money.parse("123.45"), Money.parse("١٢٣٫٤٥"));
     }
+    @Test public void boundariesAndWhitespace() {
+        assertEquals("0.01",Money.parse(" 0.01 ").toPlainString());
+        assertEquals("999999999999.99",Money.parse("999999999999.99").toPlainString());
+        for(String text:new String[]{null,"1,000","۱٬۰۰۰","1 000","+1","00000000000000000000000001"}) {
+            try { Money.parse(text); fail(); } catch(IllegalArgumentException expected) {}
+        }
+    }
     @Test public void formatKeepsCents() { assertEquals("1,234.50", Money.format(Money.parse("1234.5"))); }
 }
