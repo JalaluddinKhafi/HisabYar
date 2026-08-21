@@ -63,15 +63,15 @@ public class MainActivity extends Activity {
         summary=label("",16); root.addView(summary);
         root.addView(label("ثبت درآمد یا مصرف",20));
         type=spinner(new String[]{"مصرف","درآمد"}); root.addView(type);
-        amount=edit("مبلغ"); amount.setTextDirection(View.TEXT_DIRECTION_LTR); amount.setInputType(InputType.TYPE_CLASS_NUMBER|InputType.TYPE_NUMBER_FLAG_DECIMAL); root.addView(amount);
+        amount=edit("مبلغ"); amount.setId(R.id.entry_amount); amount.setTextDirection(View.TEXT_DIRECTION_LTR); amount.setInputType(InputType.TYPE_CLASS_NUMBER|InputType.TYPE_NUMBER_FLAG_DECIMAL); root.addView(amount);
         currency=spinner(new String[]{"افغانی (AFN)","دالر (USD)"}); root.addView(currency);
         java.util.LinkedHashSet<String> categories=new java.util.LinkedHashSet<>(java.util.Arrays.asList(CATEGORIES));
         for(Entry entry:store.entries()) categories.add(entry.category);
         category=spinner(categories.toArray(new String[0])); root.addView(category);
         type.setContentDescription("نوع ثبت"); currency.setContentDescription("ارز ثبت"); category.setContentDescription("دسته‌بندی ثبت");
         dateButton=button("تاریخ میلادی: "+selectedDate,()->chooseDate());
-        source=edit("منبع درآمد / فروشگاه (اختیاری)"); root.addView(source);
-        note=edit("توضیح (اختیاری)"); root.addView(note);
+        source=edit("منبع درآمد / فروشگاه (اختیاری)"); source.setId(R.id.entry_source); root.addView(source);
+        note=edit("توضیح (اختیاری)"); note.setId(R.id.entry_note); root.addView(note);
         amount.setFilters(new android.text.InputFilter[]{new android.text.InputFilter.LengthFilter(24)});
         source.setFilters(new android.text.InputFilter[]{new android.text.InputFilter.LengthFilter(200)});
         note.setFilters(new android.text.InputFilter[]{new android.text.InputFilter.LengthFilter(1000)});

@@ -1,0 +1,5 @@
+<resources>
+    <item name="entry_amount" type="id" />
+    <item name="entry_source" type="id" />
+    <item name="entry_note" type="id" />
+</resources>
