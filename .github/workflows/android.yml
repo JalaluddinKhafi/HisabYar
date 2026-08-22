@@ -31,15 +31,15 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '8.9'
+          cache-read-only: ${{ github.event_name == 'pull_request' }}
 
       - name: Show Java and Gradle versions
         run: |
           java -version
-          gradle --version
+          ./gradlew --version
 
-      - name: Build debug APK
-        run: gradle assembleDebug --stacktrace --info
+      - name: Verify and build
+        run: ./gradlew testDebugUnitTest lintDebug assembleDebug assembleDebugAndroidTest --stacktrace
 
       - name: Upload APK
         if: success()
