@@ -97,7 +97,15 @@ public class MainActivity extends Activity {
         });
         filterCurrency.setContentDescription("فیلتر ارز"); filterType.setContentDescription("فیلتر نوع ثبت"); filterPeriod.setContentDescription("فیلتر بازهٔ زمانی");
         body=new LinearLayout(this); body.setOrientation(LinearLayout.VERTICAL); root.addView(body);
-        ScrollView scroll=new ScrollView(this); scroll.setFillViewport(true); scroll.addView(root); setContentView(scroll);
+        ScrollView scroll=new ScrollView(this); scroll.setFillViewport(true); scroll.addView(root);
+        scroll.setOnApplyWindowInsetsListener((view,insets)->{
+            if(android.os.Build.VERSION.SDK_INT>=30) {
+                android.graphics.Insets bars=insets.getInsets(android.view.WindowInsets.Type.systemBars()|android.view.WindowInsets.Type.ime());
+                view.setPadding(bars.left,bars.top,bars.right,bars.bottom);
+            } else view.setPadding(insets.getSystemWindowInsetLeft(),insets.getSystemWindowInsetTop(),insets.getSystemWindowInsetRight(),insets.getSystemWindowInsetBottom());
+            return insets;
+        });
+        setContentView(scroll);
     }
     private int dp(int value) { return Math.round(value*getResources().getDisplayMetrics().density); }
     private TextView label(String text,int size) {
