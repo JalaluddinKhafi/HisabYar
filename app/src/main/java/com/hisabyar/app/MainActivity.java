@@ -37,7 +37,7 @@ public class MainActivity extends Activity {
         }
         if(state!=null) {
             amount.setText(state.getString("amount","")); source.setText(state.getString("source","")); note.setText(state.getString("note",""));
-            type.setSelection(state.getInt("type",0)); currency.setSelection(state.getInt("currency",0)); category.setSelection(state.getInt("category",0));
+            type.setSelection(state.getInt("type",0)); currency.setSelection(state.getInt("currency",0)); selectCategory(state.getString("categoryName",CATEGORIES[0]));
             editingId=state.getString("editingId"); if(editingId!=null) saveButton.setText("ذخیرهٔ ویرایش");
         }
         if(state!=null && state.containsKey("lastDeleted")) {
@@ -47,9 +47,10 @@ public class MainActivity extends Activity {
         render();
         if(problem!=null) message(problem);
     }
+    @Override protected void onResume() { super.onResume(); if(body!=null) render(); }
     @Override protected void onSaveInstanceState(Bundle state) {
         state.putString("amount",amount.getText().toString()); state.putString("source",source.getText().toString()); state.putString("note",note.getText().toString());
-        state.putInt("type",type.getSelectedItemPosition()); state.putInt("currency",currency.getSelectedItemPosition()); state.putInt("category",category.getSelectedItemPosition());
+        state.putInt("type",type.getSelectedItemPosition()); state.putInt("currency",currency.getSelectedItemPosition()); state.putString("categoryName",category.getSelectedItem().toString());
         state.putString("editingId",editingId);
         if(lastDeleted!=null) try { state.putString("lastDeleted",lastDeleted.toJson().toString()); } catch(org.json.JSONException ignored) {}
         state.putInt("filterCurrency",filterCurrency.getSelectedItemPosition()); state.putInt("filterType",filterType.getSelectedItemPosition());
@@ -124,7 +125,11 @@ public class MainActivity extends Activity {
     private Button button(String text,Runnable action) {
         Button view=new Button(this); view.setText(text); view.setMinHeight(dp(48)); view.setOnClickListener(v->action.run()); root.addView(view); return view;
     }
-    private void message(String text) { new AlertDialog.Builder(this).setMessage(text).setPositiveButton("باشه",null).show(); }
+    private void message(String text) {
+        ScrollView scroll=new ScrollView(this); TextView content=label(text==null?"عملیات انجام نشد.":text,16);
+        content.setTextIsSelectable(true); scroll.addView(content);
+        new AlertDialog.Builder(this).setView(scroll).setPositiveButton("باشه",null).show();
+    }
     private void chooseDate() {
         String[] parts=selectedDate.split("-");
         new android.app.DatePickerDialog(this,(picker,year,month,day)->{
@@ -186,14 +191,17 @@ public class MainActivity extends Activity {
     private void editEntry(Entry e) {
         editingId=e.id; amount.setText(e.amount.toPlainString()); source.setText(e.source); note.setText(e.note);
         type.setSelection(e.type.equals("income")?1:0); currency.setSelection(e.currency.equals("USD")?1:0);
-        boolean foundCategory=false;
-        for(int i=0;i<category.getCount();i++) if(e.category.equals(category.getItemAtPosition(i))) { category.setSelection(i); foundCategory=true; }
-        if(!foundCategory) {
-            java.util.ArrayList<String> values=new java.util.ArrayList<>(); for(int i=0;i<category.getCount();i++) values.add(category.getItemAtPosition(i).toString()); values.add(e.category);
-            category.setAdapter(new ArrayAdapter<>(this,android.R.layout.simple_spinner_dropdown_item,values)); category.setSelection(values.size()-1);
-        }
+        selectCategory(e.category);
         selectedDate=e.date; dateButton.setText("تاریخ میلادی: "+selectedDate); saveButton.setText("ذخیرهٔ ویرایش");
         amount.requestFocus();
+    }
+    private void selectCategory(String selected) {
+        boolean foundCategory=false;
+        for(int i=0;i<category.getCount();i++) if(selected.equals(category.getItemAtPosition(i))) { category.setSelection(i); foundCategory=true; }
+        if(!foundCategory) {
+            java.util.ArrayList<String> values=new java.util.ArrayList<>(); for(int i=0;i<category.getCount();i++) values.add(category.getItemAtPosition(i).toString()); values.add(selected);
+            category.setAdapter(new ArrayAdapter<>(this,android.R.layout.simple_spinner_dropdown_item,values)); category.setSelection(values.size()-1);
+        }
     }
     private void delete(Entry entry) {
         new AlertDialog.Builder(this).setTitle("حذف ثبت؟").setMessage(entry.date+" • "+entry.category+"\n"+Money.format(entry.amount)+" "+entry.currency+"\nاین ثبت حذف شود؟")
@@ -229,6 +237,7 @@ public class MainActivity extends Activity {
             }).show();
     }
     private void createDocument(int request,String mime,String filename) {
+        if((request==40 || request==43) && store.isReadOnly()) { message("اطلاعات خوانده نشد؛ از خروجی خام استفاده کنید."); return; }
         android.content.Intent intent=new android.content.Intent(android.content.Intent.ACTION_CREATE_DOCUMENT);
         intent.addCategory(android.content.Intent.CATEGORY_OPENABLE); intent.setType(mime);
         intent.putExtra(android.content.Intent.EXTRA_TITLE,filename);

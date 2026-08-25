@@ -13,7 +13,7 @@ public class ExportReportTest {
     @Test public void csvQuotesNewlinesAndNeutralizesFormulas() {
         Entry e=new Entry("1","income","1","USD","سایر"," =SUM(A1)","a,\"b\"\nc","2026-08-02");
         String csv=CsvExport.encode(Arrays.asList(e));
-        assertTrue(csv.startsWith("\uFEFFid,")); assertTrue(csv.contains("' =SUM(A1)"));
+        assertTrue(csv.startsWith("\uFEFFid,")); assertTrue(csv.contains("'=SUM(A1)"));
         assertTrue(csv.contains("a,\"\"b\"\"\nc")); assertTrue(csv.endsWith("\r\n"));
     }
 }

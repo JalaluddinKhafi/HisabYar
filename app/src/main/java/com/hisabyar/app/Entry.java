@@ -22,9 +22,16 @@ public final class Entry {
         o.put("note",note); o.put("date",date); return o;
     }
     public static Entry fromJson(org.json.JSONObject o) throws org.json.JSONException {
-        return new Entry(o.get("id").toString(), o.getString("type"), o.get("amount").toString(),
+        return new Entry(o.get("id").toString(), o.getString("type"), decimalText(o.get("amount")),
             o.getString("currency"), o.getString("category"), o.optString("source",""),
             o.optString("note",""), o.getString("date"));
+    }
+    private static String decimalText(Object value) {
+        if(!(value instanceof Number)) return value.toString();
+        java.math.BigDecimal number=new java.math.BigDecimal(value.toString());
+        if(number.signum()<=0 || number.compareTo(new java.math.BigDecimal("999999999999.99"))>0 || number.stripTrailingZeros().scale()>2)
+            throw new IllegalArgumentException("مبلغ قدیمی خارج از محدوده یا دارای اعشار نامعتبر است.");
+        return number.setScale(2,java.math.RoundingMode.UNNECESSARY).toPlainString();
     }
     private static String text(String text, int limit) {
         String value=text == null ? "" : text.trim();

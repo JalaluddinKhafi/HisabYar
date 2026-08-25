@@ -2,6 +2,8 @@ plugins { id 'com.android.application' }
 
 android {
     namespace 'com.hisabyar.app'
+    useLibrary 'android.test.runner', false
+    useLibrary 'android.test.base', false
     compileSdk 35
     defaultConfig {
         applicationId 'com.hisabyar.app'

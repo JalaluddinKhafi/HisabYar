@@ -8,6 +8,10 @@ public class EntryTest {
         Entry e=Entry.fromJson(o);
         assertEquals("123",e.id); assertEquals("12.50",e.toJson().getString("amount"));
     }
+    @Test public void legacyScientificNotationIsSupported() throws Exception {
+        JSONObject o=new JSONObject("{\"id\":123,\"type\":\"income\",\"amount\":1.0E8,\"currency\":\"AFN\",\"category\":\"سایر\",\"date\":\"2026-08-02\"}");
+        assertEquals("100000000.00",Entry.fromJson(o).amount.toPlainString());
+    }
     @Test public void uniqueIdsDoNotUseClockResolution() { assertNotEquals(Entry.newId(), Entry.newId()); }
     @Test(expected=IllegalArgumentException.class) public void invalidCurrencyFails() {
         new Entry("1","income","2","EUR","سایر","","","2026-08-02");

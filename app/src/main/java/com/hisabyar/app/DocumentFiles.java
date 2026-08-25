@@ -14,7 +14,12 @@ public final class DocumentFiles {
                 if(buffer.size()+count>BackupCodec.MAX_BYTES) throw new IOException("فایل بزرگ‌تر از ۸ مگابایت است.");
                 buffer.write(bytes,0,count);
             }
-            return new String(buffer.toByteArray(),StandardCharsets.UTF_8);
+            try {
+                return StandardCharsets.UTF_8.newDecoder()
+                    .onMalformedInput(java.nio.charset.CodingErrorAction.REPORT)
+                    .onUnmappableCharacter(java.nio.charset.CodingErrorAction.REPORT)
+                    .decode(java.nio.ByteBuffer.wrap(buffer.toByteArray())).toString();
+            } catch(java.nio.charset.CharacterCodingException invalid) { throw new IOException("فایل باید متن معتبر UTF-8 باشد.",invalid); }
         }
     }
     public static void write(OutputStream stream,String text) throws IOException {

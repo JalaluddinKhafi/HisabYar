@@ -11,13 +11,14 @@ public final class BackupCodec {
     public static final int MAX_BYTES=8*1024*1024;
     private BackupCodec() {}
     public static List<Entry> decode(String text) throws JSONException {
-        if(text==null || text.length()>MAX_BYTES) throw new IllegalArgumentException("فایل پشتیبان بیش از حد بزرگ است.");
+        if(text==null || text.length()>MAX_BYTES || text.getBytes(java.nio.charset.StandardCharsets.UTF_8).length>MAX_BYTES) throw new IllegalArgumentException("فایل پشتیبان بیش از حد بزرگ است.");
         String raw=text.trim();
+        if(raw.startsWith("\uFEFF")) raw=raw.substring(1).trim();
         JSONArray rows;
         if(raw.startsWith("[")) rows=new JSONArray(raw);
         else {
             JSONObject envelope=new JSONObject(raw);
-            if(!"HisabYar".equals(envelope.getString("app")) || envelope.getInt("version")!=1)
+            if(!"HisabYar".equals(envelope.getString("app")) || !Integer.valueOf(1).equals(envelope.get("version")))
                 throw new IllegalArgumentException("قالب پشتیبان پشتیبانی نمی‌شود.");
             rows=envelope.getJSONArray("entries");
         }
@@ -34,6 +35,8 @@ public final class BackupCodec {
         if(entries.size()>MAX_ENTRIES) throw new IllegalArgumentException("تعداد ثبت‌ها بیش از حد است.");
         JSONArray rows=new JSONArray(); for(Entry e:entries) rows.put(e.toJson());
         JSONObject envelope=new JSONObject(); envelope.put("app","HisabYar"); envelope.put("version",1);
-        envelope.put("entries",rows); return envelope.toString();
+        envelope.put("entries",rows); String json=envelope.toString();
+        if(json.getBytes(java.nio.charset.StandardCharsets.UTF_8).length>MAX_BYTES) throw new IllegalArgumentException("حجم دفتر بیش از ۸ مگابایت است؛ پشتیبان را بخش‌بندی کنید.");
+        return json;
     }
 }

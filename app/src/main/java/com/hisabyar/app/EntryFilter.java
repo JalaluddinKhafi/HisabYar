@@ -17,7 +17,9 @@ public final class EntryFilter {
         }
         // Stable sort preserves insertion order for equal dates; newest insertion first.
         java.util.Collections.reverse(result);
-        result.sort(Comparator.comparing((Entry e)->e.date).reversed());
+        java.util.Collections.sort(result,new Comparator<Entry>() {
+            @Override public int compare(Entry a,Entry b) { return b.date.compareTo(a.date); }
+        });
         return result;
     }
 }

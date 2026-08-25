@@ -8,6 +8,9 @@ public class DocumentFilesTest {
         ByteArrayOutputStream out=new ByteArrayOutputStream(); DocumentFiles.write(out,"پشتیبان ۱۲۳");
         assertEquals("پشتیبان ۱۲۳",DocumentFiles.read(new ByteArrayInputStream(out.toByteArray())));
     }
+    @Test(expected=IOException.class) public void invalidUtf8Fails() throws Exception {
+        DocumentFiles.read(new ByteArrayInputStream(new byte[]{(byte)0xC3,(byte)0x28}));
+    }
     @Test(expected=IOException.class) public void oversizedFileFails() throws Exception {
         DocumentFiles.read(new ByteArrayInputStream(new byte[BackupCodec.MAX_BYTES+1]));
     }
