@@ -39,6 +39,11 @@ public class LedgerStoreTest {
         LedgerStore reloaded=new LedgerStore(prefs()); reloaded.load(); assertEquals("1",reloaded.entries().get(0).id);
         Entry removed=store.remove("1"); assertTrue(store.entries().isEmpty()); store.upsert(removed); assertEquals(1,store.entries().size());
     }
+    @Test public void invalidReplacementDoesNotChangeExistingLedger() throws Exception {
+        LedgerStore store=new LedgerStore(prefs()); store.load(); store.upsert(e("5")); String previous=stored;
+        try { store.replace(java.util.Arrays.asList(e("1"),e("2"))); fail(); } catch(IllegalArgumentException expected) {}
+        assertEquals(previous,stored); assertEquals("5.00",store.entries().get(0).amount.toPlainString());
+    }
     @Test public void callersCannotMutateEntries() throws Exception {
         LedgerStore store=new LedgerStore(prefs()); store.load();
         try { store.entries().add(e("1")); fail(); } catch(UnsupportedOperationException expected) {}
