@@ -128,7 +128,7 @@ public class MainActivity extends Activity {
     private void message(String text) {
         ScrollView scroll=new ScrollView(this); TextView content=label(text==null?"عملیات انجام نشد.":text,16);
         content.setTextIsSelectable(true); scroll.addView(content);
-        new AlertDialog.Builder(this).setView(scroll).setPositiveButton("باشه",null).show();
+        new AlertDialog.Builder(this).setView(scroll).setPositiveButton(getString(R.string.ok),null).show();
     }
     private void chooseDate() {
         String[] parts=selectedDate.split("-");
@@ -180,7 +180,7 @@ public class MainActivity extends Activity {
     private void confirmDiscard(Runnable action) {
         if(!hasDraft()) { action.run(); return; }
         new AlertDialog.Builder(this).setMessage("تغییرات ذخیره‌نشدهٔ فرم کنار گذاشته شوند؟")
-            .setNegativeButton("لغو",null).setPositiveButton("کنارگذاشتن",(dialog,which)->action.run()).show();
+            .setNegativeButton(getString(R.string.cancel),null).setPositiveButton("کنارگذاشتن",(dialog,which)->action.run()).show();
     }
     @Override public void onBackPressed() { confirmDiscard(()->finish()); }
     private void clearForm() {
@@ -205,7 +205,7 @@ public class MainActivity extends Activity {
     }
     private void delete(Entry entry) {
         new AlertDialog.Builder(this).setTitle("حذف ثبت؟").setMessage(entry.date+" • "+entry.category+"\n"+Money.format(entry.amount)+" "+entry.currency+"\nاین ثبت حذف شود؟")
-            .setNegativeButton("لغو",null).setPositiveButton("حذف",(dialog,which)->{
+            .setNegativeButton(getString(R.string.cancel),null).setPositiveButton("حذف",(dialog,which)->{
                 try { lastDeleted=store.remove(entry.id); undoButton.setEnabled(true); if(entry.id.equals(editingId)) clearForm(); render(); } catch(Exception error) { message(error.getMessage()); }
             }).show();
     }
@@ -231,7 +231,7 @@ public class MainActivity extends Activity {
         if(store.isReadOnly()) { message("برای محافظت از دادهٔ خراب، بازیابی غیرفعال است. ابتدا نسخهٔ خام را خروجی بگیرید."); return; }
         new AlertDialog.Builder(this).setTitle("جایگزینی تمام اطلاعات؟")
             .setMessage("پشتیبان معتبر است: "+imported.size()+" ثبت.\nتمام "+store.entries().size()+" ثبت فعلی جایگزین می‌شوند. ابتدا از اطلاعات فعلی پشتیبان بگیرید.")
-            .setNegativeButton("لغو",null).setPositiveButton("جایگزینی",(dialog,which)->{
+            .setNegativeButton(getString(R.string.cancel),null).setPositiveButton("جایگزینی",(dialog,which)->{
                 try { store.replace(imported); lastDeleted=null; undoButton.setEnabled(false); clearForm(); render(); message("بازیابی انجام شد."); }
                 catch(Exception error) { message("بازیابی انجام نشد: "+error.getMessage()); }
             }).show();
