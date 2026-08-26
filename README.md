@@ -20,7 +20,7 @@ Gradle 8.9 is downloaded and checksum-verified by the wrapper. Dependencies requ
 
 Debug APK: `app/build/outputs/apk/debug/app-debug.apk`. This is a debug build, not a signed store release. On a connected test device, use `./gradlew connectedDebugAndroidTest` for instrumentation tests.
 
-See [Persian guide](README_FA.md), [audit](docs/REVIEW_FA.md), [manual QA](docs/QA_FA.md), and [validation](docs/VALIDATION.md).
+See [commit schedule](docs/COMMIT_SCHEDULE.md), [Persian guide](README_FA.md), [audit](docs/REVIEW_FA.md), [manual QA](docs/QA_FA.md), and [validation](docs/VALIDATION.md).
 
 ## Commit dates
 
