@@ -1,12 +1,15 @@
-```yaml
+
 name: Build HisabYar APK
 
 on:
   workflow_dispatch:
   push:
-    branches: [main, fix/android-build]
+    branches:
+      - main
+      - fix/android-build
   pull_request:
-    branches: [main]
+    branches:
+      - main
 
 permissions:
   contents: read
@@ -39,4 +42,3 @@ jobs:
           name: HisabYar-debug-apk
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
-```
